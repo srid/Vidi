@@ -1,4 +1,8 @@
+import { useState } from 'react';
+
 export default function PhraseList({ categories, onSelect }) {
+  const [custom, setCustom] = useState('');
+
   return (
     <div className="min-h-full px-5 py-8 pb-[env(safe-area-inset-bottom)]">
       {/* Header */}
@@ -7,6 +11,30 @@ export default function PhraseList({ categories, onSelect }) {
           Vidi
         </h1>
       </header>
+
+      {/* Custom phrase input */}
+      <div className="mb-8 flex gap-2">
+        <input
+          type="text"
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && custom.trim()) onSelect(custom.trim());
+          }}
+          placeholder="Écrire..."
+          className="flex-1 bg-white/10 text-white px-4 py-3 text-base
+                     rounded-lg placeholder-white/30 focus:outline-none
+                     focus:bg-white/15"
+        />
+        <button
+          onClick={() => custom.trim() && onSelect(custom.trim())}
+          className="text-white/50 hover:text-white px-3 text-xl
+                     focus:outline-none cursor-pointer"
+          aria-label="Show phrase"
+        >
+          →
+        </button>
+      </div>
 
       {/* Categories */}
       {categories.map((cat) => (
@@ -34,3 +62,4 @@ export default function PhraseList({ categories, onSelect }) {
     </div>
   );
 }
+
