@@ -4,13 +4,12 @@
 - Tout va bien — je choisis simplement de ne pas parler.
 
 ## Commandes
-- Un café noir, s'il vous plaît. Je ne parle pas aujourd'hui.
-- L'addition, s'il vous plaît.
+- Un café allongé double, 3/4, noir, s'il vous plaît.
 - Un verre d'eau, s'il vous plaît.
 - La même chose, s'il vous plaît.
 
 ## Piscine / Salle de sport
-- Je fais une expérience de silence. Je vous entends, mais je ne parle pas.
+- Je pratique une période de silence. Je vous entends, mais je ne parle pas.
 - Oui, je vais bien. Merci.
 - Je n'ai pas besoin d'aide, merci.
 
