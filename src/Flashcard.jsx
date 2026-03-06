@@ -31,8 +31,30 @@ export default function Flashcard({ phrase, onClose }) {
 
   useEffect(() => {
     fitText();
+
+    // Delayed refit for cases where dimensions aren't settled yet
+    const delayedFit = () => {
+      fitText();
+      // Refit again after a short delay to catch layout shifts
+      setTimeout(fitText, 100);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') delayedFit();
+    };
+
     window.addEventListener('resize', fitText);
-    return () => window.removeEventListener('resize', fitText);
+    window.addEventListener('orientationchange', delayedFit);
+    document.addEventListener('visibilitychange', onVisibility);
+    // Some mobile browsers fire pageshow on app resume
+    window.addEventListener('pageshow', delayedFit);
+
+    return () => {
+      window.removeEventListener('resize', fitText);
+      window.removeEventListener('orientationchange', delayedFit);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pageshow', delayedFit);
+    };
   }, [fitText]);
 
   // Try Fullscreen API
