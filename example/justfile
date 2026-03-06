@@ -1,0 +1,17 @@
+# Vidi example — justfile
+
+default:
+    @just --list
+
+# Build the site
+build:
+    nix build
+
+# Preview locally
+preview:
+    nix build
+    open result/index.html
+
+# Deploy to Cloudflare Pages
+deploy:
+    nix run .#deploy
