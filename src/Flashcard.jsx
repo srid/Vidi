@@ -57,13 +57,16 @@ export default function Flashcard({ phrase, onClose }) {
     };
   }, [fitText]);
 
-  // Try Fullscreen API
+  // Fullscreen + lock to landscape
   useEffect(() => {
     const el = containerRef.current;
     if (el && el.requestFullscreen && !document.fullscreenElement) {
-      el.requestFullscreen().catch(() => {});
+      el.requestFullscreen()
+        .then(() => screen.orientation?.lock?.('landscape').catch(() => {}))
+        .catch(() => {});
     }
     return () => {
+      screen.orientation?.unlock?.();
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }
