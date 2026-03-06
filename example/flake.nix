@@ -3,43 +3,47 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     wrangler.url = "github:emrldnix/wrangler";
     vidi.url = "path:../";
   };
 
-  outputs = { self, nixpkgs, flake-utils, wrangler, vidi }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        vidiSite = vidi.packages.${system}.default;
-        # Overlay example phrases onto the built site
-        site = pkgs.runCommand "vidi-site" {} ''
-          cp -r ${vidiSite} $out
-          chmod -R u+w $out
-          cp ${./phrases.md} $out/phrases.md
-        '';
-      in {
-        packages.default = site;
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      perSystem = { pkgs, inputs', self', ... }:
+        let
+          projectName = "vidi-srid";
+          wranglerPkg = inputs'.wrangler.packages.default;
+          vidiSite = inputs'.vidi.packages.default;
+          site = pkgs.runCommand "${projectName}-site" {} ''
+            cp -r ${vidiSite} $out
+            chmod -R u+w $out
+            cp ${./phrases.md} $out/phrases.md
+          '';
+          mkApp = drv: { type = "app"; program = "${drv}/bin/${drv.name}"; };
+        in {
+          packages.default = site;
 
-        apps.deploy = {
-          type = "app";
-          program = "${pkgs.writeShellApplication {
-            name = "deploy";
-            runtimeInputs = [
-              wrangler.packages.${system}.default
-            ];
+          apps.create = mkApp (pkgs.writeShellApplication {
+            name = "create";
+            runtimeInputs = [ wranglerPkg ];
             text = ''
-              # First, `wrangler login`
-              wrangler pages deploy ${site} --project-name vidi
+              wrangler pages project create ${projectName}
             '';
-          }}/bin/deploy";
-        };
+          });
 
-        devShells.default = pkgs.mkShell {
-          packages = [
-            wrangler.packages.${system}.default
-          ];
+          apps.deploy = mkApp (pkgs.writeShellApplication {
+            name = "deploy";
+            runtimeInputs = [ wranglerPkg ];
+            text = ''
+              wrangler pages deploy ${site} --project-name ${projectName}
+            '';
+          });
+
+          devShells.default = pkgs.mkShell {
+            packages = [ wranglerPkg ];
+          };
         };
-      });
+    };
 }

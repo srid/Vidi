@@ -1,17 +1,23 @@
 # Vidi example — justfile
 
+nix_args := "--override-input vidi path:../"
+
 default:
     @just --list
 
+# Create Cloudflare Pages project
+create:
+    nix run {{nix_args}} .#create
+
 # Build the site
 build:
-    nix build
+    nix build {{nix_args}}
 
 # Preview locally
 preview:
-    nix build
+    nix build {{nix_args}}
     open result/index.html
 
 # Deploy to Cloudflare Pages
 deploy:
-    nix run .#deploy
+    nix run {{nix_args}} .#deploy
